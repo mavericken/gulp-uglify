@@ -6,7 +6,6 @@ var log = require('fancy-log');
 var applySourceMap = require('vinyl-sourcemaps-apply');
 var saveLicense = require('uglify-save-license');
 var isObject = require('isobject');
-var path = require('path');
 var reSourceMapComment = /\n\/\/# sourceMappingURL=.+?$/;
 var pluginName = 'gulp-uglify';
 
