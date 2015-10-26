@@ -6,6 +6,7 @@ var log = require('fancy-log');
 var applySourceMap = require('vinyl-sourcemaps-apply');
 var saveLicense = require('uglify-save-license');
 var isObject = require('isobject');
+var path = require('path');
 var reSourceMapComment = /\n\/\/# sourceMappingURL=.+?$/;
 var pluginName = 'gulp-uglify';
 
@@ -60,8 +61,9 @@ function createError(file, err) {
   });
 }
 
-module.exports = function(opts, uglify) {
+module.exports = function (opts, uglify) {
   function minify(file, encoding, callback) {
+    var throughStream = this;
     var options = setup(opts || {});
 
     if (file.isNull()) {
@@ -76,10 +78,15 @@ module.exports = function(opts, uglify) {
       options.outSourceMap = file.relative;
     }
 
-    var mangled = trycatch(function() {
-      var m = uglify.minify(String(file.contents), options);
-      m.code = new Buffer(m.code.replace(reSourceMapComment, ''));
-      return m;
+    var mangled = trycatch(function () {
+      try {
+        var m = uglify.minify(String(file.contents), options);
+        m.code = new Buffer(m.code.replace(reSourceMapComment, ''));
+        return m;
+       } catch (ex) {
+        throughStream.emit("warning",{message: "Failed to minify file.", path: file.path, exception:ex})
+        return { code: file.contents };
+      }
     }, createError.bind(null, file));
 
     if (mangled instanceof PluginError) {
