@@ -94,7 +94,7 @@ module.exports = function (opts, uglify) {
 
     file.contents = mangled.code;
 
-    if (file.sourceMap) {
+    if (file.sourceMap && mangled.map) {
       var sourceMap = JSON.parse(mangled.map);
       sourceMap.sources = [file.relative];
       applySourceMap(file, sourceMap);
